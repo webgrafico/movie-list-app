@@ -1,9 +1,9 @@
-import Alert from './components/Alert';
-import Loading from './components/Loading';
 import MovieList from './components/MovieList';
 import PaginationLink from './components/PaginationLink';
 import { IMovieListSchema } from './interfaces/IMovie';
 import api from './services/axios';
+import getPageParamfromUrl from './utils';
+import { Alert, Backdrop, Box, CircularProgress, Collapse, Container, Grid, Paper, Typography } from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -21,9 +21,9 @@ const App = () => {
   });
 
   const fetchMovies = async () => {
+    console.log(' getPageParamfromUrl() ', getPageParamfromUrl());
     try {
-      const { data } = await api.get(`/movie/top_rated?language=en-US&page=${pagination.page}`);
-      // console.log('movies2: ', data);
+      const { data } = await api.get(`/movie/top_rated?language=en-US&page=${getPageParamfromUrl()}`);
       return data;
     } catch (error) {
       setIsError(true);
@@ -39,7 +39,6 @@ const App = () => {
           setIsError(true);
         }
         setMoviesList(movies);
-        // console.log('movies1: ', movies);
       })
       .finally(() => setIsLoading(false));
   };
@@ -54,18 +53,42 @@ const App = () => {
 
   return (
     <div>
-      <h1>Movie List - Top Rated</h1>
+      <Container maxWidth='sm'>
+        <Typography component='div'>
+          <Box sx={{ fontSize: 'h5.fontSize', m: 1, fontWeight: 'bold', textAlign: 'center' }}>
+            Movie List - Top Rated
+          </Box>
+        </Typography>
 
-      <Alert
-        isVisible={isError}
-        message='Não foi possível listar os filmes devido a limitação da API. Tente novamente em alguns segundos'
-      />
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Collapse in={isError}>
+              <Alert severity='error'>
+                Não foi possível listar os filmes devido a limitação da API. Tente novamente em alguns segundos
+              </Alert>
+            </Collapse>
+          </Grid>
 
-      <Loading isVisible={isLoading} />
+          <Grid item xs={12}>
+            {/* <Loading isVisible={isLoading} /> */}
+            <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+              <CircularProgress color='inherit' />
+            </Backdrop>
+          </Grid>
 
-      <MovieList schema={moviesList} />
+          <Grid item xs={12}>
+            <Paper elevation={3}>
+              <Grid item xs={12} pt={2}>
+                <MovieList schema={moviesList} />
+              </Grid>
+            </Paper>
+          </Grid>
 
-      <PaginationLink totalPages={moviesList.total_pages} />
+          <Grid py={2} container direction='row' justifyContent='center' alignItems='center'>
+            <PaginationLink totalPages={moviesList.total_pages} />
+          </Grid>
+        </Grid>
+      </Container>
     </div>
   );
 };

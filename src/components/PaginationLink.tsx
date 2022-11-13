@@ -1,26 +1,27 @@
-import Pagination from '@material-ui/lab/Pagination';
-import PaginationItem from '@material-ui/lab/PaginationItem';
-import { MemoryRouter, Route } from 'react-router';
-import { Link } from 'react-router-dom';
+import getPageParamfromUrl from '../utils';
+import Pagination from '@mui/material/Pagination';
+import PaginationItem from '@mui/material/PaginationItem';
+import { Link, MemoryRouter, Route, Routes } from 'react-router-dom';
+
+function Content({ totalPages }) {
+  const page = getPageParamfromUrl();
+  return (
+    <Pagination
+      page={page}
+      count={totalPages}
+      renderItem={(item) => (
+        <PaginationItem component={Link} to={`/list${item.page === 1 ? '' : `?page=${item.page}`}`} {...item} />
+      )}
+    />
+  );
+}
 
 export default function PaginationLink({ totalPages }) {
   return (
-    <MemoryRouter initialEntries={['/inbox']} initialIndex={0}>
-      <Route>
-        {({ location }) => {
-          const query = new URLSearchParams(location.search);
-          const page = parseInt(query.get('page') || '1', totalPages);
-          return (
-            <Pagination
-              page={page}
-              count={10}
-              renderItem={(item) => (
-                <PaginationItem component={Link} to={`/${item.page === 1 ? '' : `?page=${item.page}`}`} {...item} />
-              )}
-            />
-          );
-        }}
-      </Route>
+    <MemoryRouter initialEntries={['/list']} initialIndex={0}>
+      <Routes>
+        <Route path='*' element={<Content totalPages={totalPages} />} />
+      </Routes>
     </MemoryRouter>
   );
 }
