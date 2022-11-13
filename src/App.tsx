@@ -3,9 +3,32 @@ import PaginationLink from './components/PaginationLink';
 import { IMovieListSchema } from './interfaces/IMovie';
 import api from './services/axios';
 import getPageParamfromUrl from './utils';
-import { Alert, Backdrop, Box, CircularProgress, Collapse, Container, Grid, Paper, Typography } from '@mui/material';
+import {
+  Alert,
+  Backdrop,
+  Box,
+  CircularProgress,
+  Collapse,
+  Container,
+  Grid,
+  Pagination,
+  PaginationItem,
+  Paper,
+  Snackbar,
+  Typography
+} from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
+interface ErrorApi {
+  response: {
+    status: number;
+    data: {
+      errors: string[];
+    };
+  };
+}
 
 const App = () => {
   const [moviesList, setMoviesList] = useState<IMovieListSchema>({
@@ -16,18 +39,25 @@ const App = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [pagination, setPagination] = useState({
-    page: 1
-  });
+
+  const [errorMessage, setErrorMessage] = useState(
+    'Não foi possível listar os filmes devido a limitação da API. Tente novamente em alguns segundos'
+  );
 
   const fetchMovies = async () => {
-    console.log(' getPageParamfromUrl() ', getPageParamfromUrl());
     try {
       const { data } = await api.get(`/movie/top_rated?language=en-US&page=${getPageParamfromUrl()}`);
       return data;
-    } catch (error) {
+    } catch (e) {
+      const error = e as ErrorApi;
       setIsError(true);
-      throw new Error('Erro ao buscar filmes');
+
+      if (error.response.status === 422) {
+        setErrorMessage(`API Error: ${error.response.data.errors[0]}`);
+        throw new Error(error.response.data.errors[0]);
+      }
+      setErrorMessage(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
@@ -51,26 +81,33 @@ const App = () => {
     };
   }, []);
 
+  const autoHide = () => {
+    setIsError(false);
+  };
+
   return (
     <div>
       <Container maxWidth='sm'>
         <Typography component='div'>
-          <Box sx={{ fontSize: 'h5.fontSize', m: 1, fontWeight: 'bold', textAlign: 'center' }}>
-            Movie List - Top Rated
-          </Box>
+          <Box sx={{ fontSize: 'h5.fontSize', m: 1, fontWeight: 'bold', textAlign: 'center' }}>Movie List</Box>
         </Typography>
 
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Collapse in={isError}>
-              <Alert severity='error'>
-                Não foi possível listar os filmes devido a limitação da API. Tente novamente em alguns segundos
+            <Snackbar
+              open={isError}
+              autoHideDuration={3000}
+              onClose={autoHide}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              key={'top ' + 'center'}
+            >
+              <Alert severity='error' sx={{ width: '100%' }}>
+                {errorMessage}
               </Alert>
-            </Collapse>
+            </Snackbar>
           </Grid>
 
           <Grid item xs={12}>
-            {/* <Loading isVisible={isLoading} /> */}
             <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
               <CircularProgress color='inherit' />
             </Backdrop>
@@ -85,7 +122,14 @@ const App = () => {
           </Grid>
 
           <Grid py={2} container direction='row' justifyContent='center' alignItems='center'>
-            <PaginationLink totalPages={moviesList.total_pages} />
+            <Pagination
+              count={moviesList.total_pages}
+              page={getPageParamfromUrl()}
+              onChange={debounceFetchHandler}
+              renderItem={(item) => (
+                <PaginationItem component={Link} to={`/${item.page === 1 ? '' : `?page=${item.page}`}`} {...item} />
+              )}
+            />
           </Grid>
         </Grid>
       </Container>

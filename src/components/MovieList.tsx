@@ -1,9 +1,10 @@
+import { Avatar, ListItem, ListItemAvatar, Rating, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { useState } from 'react';
-import * as React from 'react';
+import { Fragment } from 'react';
 import { IMovieListSchema } from 'src/interfaces/IMovie';
 
 interface IMovieList {
@@ -13,15 +14,17 @@ interface IMovieList {
 const MovieList: React.FC<IMovieList> = ({ schema }: IMovieList) => {
   const { page, results, total_pages, total_results } = schema;
   const [selectedIndex, setSelectedIndex] = useState(1);
+  const baseUrlImg = 'https://image.tmdb.org/t/p/original/';
 
-  const handleListItemClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
-    setSelectedIndex(index);
+  const handleListItemClick = (id: number) => {
+    console.log('movie id: ', id);
   };
 
+  const getVoteAverage = (votes: number) => ((votes / 10) * 5).toFixed(2);
+
   return (
-    <div>
+    <Typography component='div'>
       <ul>
-        <li>Page: {page}</li>
         <li>Total Pages: {total_pages}</li>
         <li>Total Results: {total_results}</li>
       </ul>
@@ -29,17 +32,25 @@ const MovieList: React.FC<IMovieList> = ({ schema }: IMovieList) => {
       <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
         <List component='nav' aria-label='secondary mailbox folder'>
           {results.map((movie) => (
-            <ListItemButton
-              key={movie.id}
-              selected={selectedIndex === 2}
-              onClick={(event) => handleListItemClick(event, 2)}
-            >
-              <ListItemText primary={movie.title} />
-            </ListItemButton>
+            <ListItem alignItems='flex-start' key={movie.id}>
+              <ListItemAvatar>
+                <Avatar key={movie.id} alt={movie.title} src={baseUrlImg + movie.poster_path} />
+              </ListItemAvatar>
+              <ListItemButton key={movie.id} onClick={() => handleListItemClick(movie.id)}>
+                <ListItemText primary={movie.title} />
+
+                <Rating
+                  name='size-small'
+                  defaultValue={parseInt(getVoteAverage(movie.vote_average))}
+                  size='small'
+                  readOnly
+                />
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
       </Box>
-    </div>
+    </Typography>
   );
 };
 

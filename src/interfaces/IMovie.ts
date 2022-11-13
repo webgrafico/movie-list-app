@@ -3,6 +3,8 @@ export interface IMovie {
   overview: string;
   vote_average: number;
   id: number;
+  backdrop_path: string;
+  poster_path: string;
 }
 export interface IMovieListSchema {
   page: number;
