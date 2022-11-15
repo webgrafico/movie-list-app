@@ -58,7 +58,7 @@ const App = () => {
   };
 
   const debouncedFetchData = debounce((query, cb) => {
-    const queryParam = query.trim() && query.length === 3;
+    const queryParam = query.trim().length >= 3;
 
     queryParam
       ? fetchData(`/search/movie?query=${query}`, cb)
@@ -120,7 +120,7 @@ const App = () => {
 
         <Footer
           totalPages={moviesSchema?.total_pages}
-          currentPage={getPageParamfromUrl()}
+          currentPage={moviesSchema?.page}
           onChange={(_, page) => getDataMovie(_, page)}
         />
       </Container>

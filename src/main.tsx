@@ -1,6 +1,5 @@
 import App from './App';
 import { StyledEngineProvider } from '@mui/material/styles';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
