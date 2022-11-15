@@ -1,6 +1,5 @@
 ![image](https://user-images.githubusercontent.com/37349708/201828660-caf07c4a-1fb9-4b7e-9ad4-d1a21981dfb3.png)
 
-
 # Getting Started
 
 This project was bootstrapped with [Vite](https://vitejs.dev/guide/).
@@ -23,6 +22,10 @@ VITE_API_KEY=
 This value are mainly used to pass API KEY to requests from API in v3.
 
 ## Available Scripts
+
+Install
+
+### `yarn install`
 
 In the project directory, you can run:
 
