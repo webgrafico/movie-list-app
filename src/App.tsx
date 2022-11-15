@@ -1,139 +1,88 @@
+import Footer from './components/Footer';
+import Header from './components/Header';
+import MovieDetail from './components/MovieDetail';
 import MovieList from './components/MovieList';
-import PaginationLink from './components/PaginationLink';
-import { IMovieListSchema } from './interfaces/IMovie';
+import { IMovie, IMovieListSchema } from './interfaces/IMovie';
 import api from './services/axios';
-import getPageParamfromUrl from './utils';
-import {
-  Alert,
-  Backdrop,
-  Box,
-  CircularProgress,
-  Collapse,
-  Container,
-  Grid,
-  Pagination,
-  PaginationItem,
-  Paper,
-  Snackbar,
-  Typography
-} from '@mui/material';
-import debounce from 'lodash.debounce';
-import { useCallback, useEffect, useState } from 'react';
+import { getPageParamfromUrl } from './utils';
+import { Grid, Container, Pagination, PaginationItem } from '@mui/material';
+import { ChangeEvent, createContext, Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Outlet, Route, Router, Routes } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
-interface ErrorApi {
-  response: {
-    status: number;
-    data: {
-      errors: string[];
-    };
-  };
+export interface IAppContext {
+  isFetching: boolean;
+  setIsFetching: React.Dispatch<SetStateAction<boolean>>;
+  error: boolean;
+  setError: React.Dispatch<SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<SetStateAction<string>>;
+  movies: IMovie[];
 }
 
+export const AppContext = createContext<null | IAppContext>(null);
+
 const App = () => {
-  const [moviesList, setMoviesList] = useState<IMovieListSchema>({
-    page: 0,
-    results: [],
-    total_pages: 0,
-    total_results: 0
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const errorMessageDefault = 'Não foi possível listar os filmes. Tente novamente em alguns segundos';
+  const [isFetching, setIsFetching] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(errorMessageDefault);
+  const [moviesSchema, setMoviesSchema] = useState<IMovieListSchema>();
 
-  const [errorMessage, setErrorMessage] = useState(
-    'Não foi possível listar os filmes devido a limitação da API. Tente novamente em alguns segundos'
-  );
-
-  const fetchMovies = async () => {
-    try {
-      const { data } = await api.get(`/movie/top_rated?language=en-US&page=${getPageParamfromUrl()}`);
-      return data;
-    } catch (e) {
-      const error = e as ErrorApi;
-      setIsError(true);
-
-      if (error.response.status === 422) {
-        setErrorMessage(`API Error: ${error.response.data.errors[0]}`);
-        throw new Error(error.response.data.errors[0]);
-      }
-      setErrorMessage(errorMessage);
-      throw new Error(errorMessage);
-    }
+  const getDataMovie = (_, page) => {
+    fetchData(`/movie/top_rated?language=en-US&page=${page}`);
   };
 
-  const fetchHandler = () => {
-    setIsLoading(true);
-    fetchMovies()
-      .then((movies: IMovieListSchema) => {
-        if (!movies) {
-          setIsError(true);
+  const fetchData = (url: string) => {
+    setIsFetching(true);
+    api
+      .get<IMovieListSchema>(url)
+      .then((response) => {
+        if (response.data) {
+          setMoviesSchema(response.data);
         }
-        setMoviesList(movies);
       })
-      .finally(() => setIsLoading(false));
+      .catch((e) => {
+        setError(true);
+        console.log(e);
+        throw new Error(e.message);
+      })
+      .finally(() => {
+        setIsFetching(false);
+      });
   };
-
-  const debounceFetchHandler = useCallback(debounce(fetchHandler, 500), []);
 
   useEffect(() => {
-    return () => {
-      debounceFetchHandler();
-    };
+    fetchData(`/movie/top_rated?language=en-US&page=${getPageParamfromUrl()}`);
   }, []);
 
-  const autoHide = () => {
-    setIsError(false);
-  };
-
   return (
-    <div>
-      <Container maxWidth='sm'>
-        <Typography component='div'>
-          <Box sx={{ fontSize: 'h5.fontSize', m: 1, fontWeight: 'bold', textAlign: 'center' }}>Movie List</Box>
-        </Typography>
+    <AppContext.Provider
+      value={{
+        isFetching,
+        setIsFetching,
+        error,
+        setError,
+        errorMessage,
+        setErrorMessage,
+        movies: moviesSchema?.results || []
+      }}
+    >
+      <Container>
+        <Header />
 
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Snackbar
-              open={isError}
-              autoHideDuration={3000}
-              onClose={autoHide}
-              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-              key={'top ' + 'center'}
-            >
-              <Alert severity='error' sx={{ width: '100%' }}>
-                {errorMessage}
-              </Alert>
-            </Snackbar>
-          </Grid>
+        <Routes>
+          <Route path='/' element={<MovieList movies={moviesSchema?.results || []} />} />
+          <Route path='/movie/:id' element={<MovieDetail />} />
+        </Routes>
 
-          <Grid item xs={12}>
-            <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
-              <CircularProgress color='inherit' />
-            </Backdrop>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Paper elevation={3}>
-              <Grid item xs={12} pt={2}>
-                <MovieList schema={moviesList} />
-              </Grid>
-            </Paper>
-          </Grid>
-
-          <Grid py={2} container direction='row' justifyContent='center' alignItems='center'>
-            <Pagination
-              count={moviesList.total_pages}
-              page={getPageParamfromUrl()}
-              onChange={debounceFetchHandler}
-              renderItem={(item) => (
-                <PaginationItem component={Link} to={`/${item.page === 1 ? '' : `?page=${item.page}`}`} {...item} />
-              )}
-            />
-          </Grid>
-        </Grid>
+        <Footer
+          totalPages={moviesSchema?.total_pages}
+          currentPage={getPageParamfromUrl()}
+          onChange={(_, page) => getDataMovie(_, page)}
+        />
       </Container>
-    </div>
+    </AppContext.Provider>
   );
 };
 

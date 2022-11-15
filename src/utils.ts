@@ -3,4 +3,6 @@ const getPageParamfromUrl = () => {
   return parseInt(query.get('page') || '1');
 };
 
-export default getPageParamfromUrl;
+const getVoteAverage = (votes: number) => ((votes / 10) * 5).toFixed(2);
+
+export { getPageParamfromUrl, getVoteAverage };
