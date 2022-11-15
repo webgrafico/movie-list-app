@@ -1,6 +1,4 @@
-import { getPageParamfromUrl } from '../utils';
 import { Grid, Pagination, PaginationItem } from '@mui/material';
-import { ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 
 interface IFooter {

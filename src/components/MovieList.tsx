@@ -1,5 +1,6 @@
+import { BASE_URL_IMG } from '../constants/constants';
 import { IMovie } from '../interfaces/IMovie';
-import { BASE_URL_IMG, getVoteAverage } from '../utils';
+import { getVoteAverage } from '../utils/utils';
 import { Avatar, Grid, ListItem, ListItemAvatar, ListItemButton, Paper, Rating, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';

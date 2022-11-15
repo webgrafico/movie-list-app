@@ -1,18 +1,17 @@
 import { AppContext } from '../App';
+import { BASE_URL_IMG } from '../constants/constants';
 import { IMovie } from '../interfaces/IMovie';
-import { BASE_URL_IMG, getVoteAverage } from '../utils';
+import { getVoteAverage } from '../utils/utils';
 import {
   Box,
   Button,
   ImageListItem,
-  Link,
   Paper,
   Rating,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Typography
 } from '@mui/material';
