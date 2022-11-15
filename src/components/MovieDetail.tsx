@@ -1,6 +1,6 @@
 import { AppContext } from '../App';
 import { IMovie } from '../interfaces/IMovie';
-import { getVoteAverage } from '../utils';
+import { BASE_URL_IMG, getVoteAverage } from '../utils';
 import {
   Box,
   Button,
@@ -23,7 +23,7 @@ interface IMovieDetail {}
 
 const MovieDetail: React.FC<IMovieDetail> = () => {
   const appContext = useContext(AppContext);
-  const baseUrlImg = 'https://image.tmdb.org/t/p/original/';
+
   const { id: movieId } = useParams();
   const navigate = useNavigate();
   const id = movieId as unknown as number;
@@ -35,7 +35,7 @@ const MovieDetail: React.FC<IMovieDetail> = () => {
       <Typography>
         <Paper elevation={3}>
           <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-            <Box sx={{ p: 2, fontWeight: 'bold', textAlign: 'left', marginTop: '40px' }}>Movie detail</Box>
+            <Box sx={{ p: 2, fontWeight: 'bold', textAlign: 'left', marginTop: '40px' }}>Detalhes</Box>
             <Button variant='contained' size='small' sx={{ m: 2 }} onClick={() => navigate(-1)}>
               Voltar
             </Button>
@@ -43,7 +43,7 @@ const MovieDetail: React.FC<IMovieDetail> = () => {
             <Typography variant='body1' gutterBottom>
               <Box sx={{ fontSize: 'h3.fontSize', p: 2, fontWeight: 'bold', textAlign: 'left' }}>{movie.title}</Box>
               <ImageListItem>
-                <img src={baseUrlImg + movie.backdrop_path} loading='lazy' width={100} />
+                <img src={BASE_URL_IMG + movie.backdrop_path} loading='lazy' width={100} />
               </ImageListItem>
               <Box p={2} paddingBottom={0} paddingTop={3}>
                 <strong>Descrição</strong>

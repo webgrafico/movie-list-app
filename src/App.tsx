@@ -5,10 +5,9 @@ import MovieList from './components/MovieList';
 import { IMovie, IMovieListSchema } from './interfaces/IMovie';
 import api from './services/axios';
 import { getPageParamfromUrl } from './utils';
-import { Grid, Container, Pagination, PaginationItem } from '@mui/material';
-import { ChangeEvent, createContext, Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
-import { Outlet, Route, Router, Routes } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Container } from '@mui/material';
+import { createContext, SetStateAction, useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 
 export interface IAppContext {
   isFetching: boolean;
@@ -30,7 +29,7 @@ const App = () => {
   const [moviesSchema, setMoviesSchema] = useState<IMovieListSchema>();
 
   const getDataMovie = (_, page) => {
-    fetchData(`/movie/top_rated?language=en-US&page=${page}`);
+    fetchData(`/movie/popular?language=en-US&page=${page}`);
   };
 
   const fetchData = (url: string) => {
@@ -53,7 +52,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchData(`/movie/top_rated?language=en-US&page=${getPageParamfromUrl()}`);
+    fetchData(`/movie/popular?language=en-US&page=${getPageParamfromUrl()}`);
   }, []);
 
   return (

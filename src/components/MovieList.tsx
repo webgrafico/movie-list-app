@@ -1,18 +1,6 @@
-import { IMovie, IMovieListSchema } from '../interfaces/IMovie';
-import { getPageParamfromUrl, getVoteAverage } from '../utils';
-import {
-  Avatar,
-  Button,
-  Grid,
-  Link,
-  ListItem,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
-  Paper,
-  Rating,
-  Typography
-} from '@mui/material';
+import { IMovie } from '../interfaces/IMovie';
+import { BASE_URL_IMG, getVoteAverage } from '../utils';
+import { Avatar, Grid, ListItem, ListItemAvatar, ListItemButton, Paper, Rating, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import { Link as RouterLink } from 'react-router-dom';
@@ -22,20 +10,18 @@ interface IMovieList {
 }
 
 const MovieList: React.FC<IMovieList> = ({ movies }) => {
-  const baseUrlImg = 'https://image.tmdb.org/t/p/original/';
-
   return (
     <>
       <Typography>
         <Paper elevation={3}>
-          <Box sx={{ p: 2, fontWeight: 'bold', textAlign: 'left', marginTop: '40px' }}>List</Box>
+          <Box sx={{ p: 2, fontWeight: 'bold', textAlign: 'left', marginTop: '40px' }}>Filmes</Box>
           <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
             <List>
               {movies.map((movie) => (
                 <ListItem disablePadding>
                   <ListItemButton key={movie.id} to={`/movie/${movie.id}`} component={RouterLink}>
                     <ListItemAvatar>
-                      <Avatar key={movie.id} alt={movie.title} src={baseUrlImg + movie.poster_path} />
+                      <Avatar key={movie.id} alt={movie.title} src={BASE_URL_IMG + movie.poster_path} />
                     </ListItemAvatar>
 
                     <Grid container>

@@ -13,7 +13,7 @@ const Header = () => {
     <>
       <Typography component='div'>
         <Box sx={{ fontSize: 'h5.fontSize', m: 1, fontWeight: 'bold', textAlign: 'center', marginTop: '40px' }}>
-          Rated movies
+          Top filmes populares
         </Box>
       </Typography>
 
